@@ -16,7 +16,7 @@ app.use(
 // Reverse mapping of stripe to API key. Model this in your preferred database.
 const customers = {
   // stripeCustomerId : data
-  stripeCustomerId: {
+  'stripeCustomerId': {
     apiKey: '123xyz',
     active: false,
     itemId: 'stripeSubscriptionItemId',
@@ -24,7 +24,7 @@ const customers = {
 };
 const apiKeys = {
   // apiKey : customerdata
-  '123xyz': 'cust1',
+  '123xyz': 'stripeCustomerId',
 };
 
 ////// Custom API Key Generation & Hashing ///////
