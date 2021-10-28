@@ -167,6 +167,7 @@ app.get('/customers/:id', (req, res) => {
 // Make a call to the API
 app.get('/api', async (req, res) => {
   const { apiKey } = req.query;
+  // const apiKey = req.headers['X-API-KEY'] // better option for storing API keys
 
   if (!apiKey) {
     res.sendStatus(400); // bad request

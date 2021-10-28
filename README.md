@@ -1,6 +1,6 @@
 ## API Monetization Demo with Stripe Metered Billing
 
-Learn how to [make money from an API](https://youtu.be/7P1CgRru8tk) on YouTube. 
+Learn how to [make money from an API](https://youtu.be/MbqSMgMAzxU) on YouTube. 
 
 Detailed breakdown of the [API monetization](https://fireship.io/lessons/api-monetization-stripe) code Fireship. 
 
