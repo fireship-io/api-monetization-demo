@@ -1,7 +1,13 @@
+// Inject all our new dotenv config options.
+require("dotenv").config();
+
 const express = require('express');
+const generateAPIKey = require("./generateAPIKey");
 const app = express();
 
-const stripe = require('stripe')('sk_test_YOUR-KEY');
+// const stripe = require('stripe')('sk_test_YOUR-KEY');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 
 // Middleware required for Webhook Handler
 app.use(
@@ -26,32 +32,6 @@ const apiKeys = {
   // apiKey : customerdata
   '123xyz': 'stripeCustomerId',
 };
-
-////// Custom API Key Generation & Hashing ///////
-
-// Recursive function to generate a unique random string as API key
-function generateAPIKey() {
-  const { randomBytes } = require('crypto');
-  const apiKey = randomBytes(16).toString('hex');
-  const hashedAPIKey = hashAPIKey(apiKey);
-
-  // Ensure API key is unique
-  if (apiKeys[hashedAPIKey]) {
-    generateAPIKey();
-  } else {
-    return { hashedAPIKey, apiKey };
-  }
-}
-
-// Hash the API key
-function hashAPIKey(apiKey) {
-  const { createHash } = require('crypto');
-
-  const hashedAPIKey = createHash('sha256').update(apiKey).digest('hex');
-
-  return hashedAPIKey;
-}
-
 ////// Express API ///////
 
 // Create a Stripe Checkout Session to create a customer and subscribe them to a plan
@@ -61,15 +41,15 @@ app.post('/checkout', async (req, res) => {
     payment_method_types: ['card'],
     line_items: [
       {
-        price: 'price_YOUR-PRODUCT',
+        price: process.env.STRIPE_PRICE_KEY,
       },
     ],
     // {CHECKOUT_SESSION_ID} is a string literal; do not change it!
     // the actual Session ID is returned in the query parameter when your customer
     // is redirected to the success page.
     success_url:
-      'http://YOUR-WEBSITE/dashboard?session_id={CHECKOUT_SESSION_ID}',
-    cancel_url: 'http://YOUR-WEBSITE/error',
+      `http://${process.env.WEBSITE_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `http://${process.env.WEBSITE_URL}/error`,
   });
 
   res.send(session);
@@ -80,7 +60,7 @@ app.post('/webhook', async (req, res) => {
   let data;
   let eventType;
   // Check if webhook signing is configured.
-  const webhookSecret = 'whsec_YOUR-KEY';
+  const webhookSecret = process.env.STRIPE_WEBHOOK_KEY;
 
   if (webhookSecret) {
     // Retrieve the event by verifying the signature using the raw body and secret.
@@ -94,7 +74,7 @@ app.post('/webhook', async (req, res) => {
         webhookSecret
       );
     } catch (err) {
-      console.log(`⚠️  Webhook signature verification failed.`);
+      console.log(`Webhook signature verification failed.`);
       return res.sendStatus(400);
     }
     // Extract the object from the event.
@@ -204,4 +184,4 @@ app.get('/usage/:customer', async (req, res) => {
   res.send(invoice);
 });
 
-app.listen(8080, () => console.log('alive on http://localhost:8080'));
+app.listen(process.env.PORT || 8080, () => console.log(`alive on http://localhost:${process.env.PORT || 8080}`));
